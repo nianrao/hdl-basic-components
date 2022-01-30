@@ -11,8 +11,12 @@ assign w_carry[0] = 1'b0;
 genvar i;
 generate
     for (i = 0 ; i < WIDTH ; i = i + 1) begin
-        assign w_sum[i] = (a[i] ^ b[i]) ^ w_carry[i];
-        assign w_carry[i + 1] = ((a[i] ^ b[i]) & w_carry[i]) | (a[i] & b[i]);
+        full_adder adder
+                   (.x(a[i]),
+                    .y(b[i]),
+                    .carry_in(w_carry[i]),
+                    .carry_out(w_carry[i + 1]),
+                    .sum(w_sum[i]));
     end
 endgenerate
 endmodule  //ripple_carry_adder
