@@ -1,7 +1,7 @@
 module single_port_ram #(
            parameter WIDTH = 8,
-           parameter DEPTH = 8,
-           parameter MODE = "NO_CHANGE"
+           parameter DEPTH = 256,
+           parameter MODE = "NO_CHANGE" // "READ_FIRST" or "WRITE_FIRST"
        ) (
            input [WIDTH - 1: 0] din,
            input [$clog2(DEPTH) - 1: 0] addr,
