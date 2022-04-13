@@ -1,4 +1,4 @@
-module moduleName #(
+module true_dual_port_1clk_ram #(
            parameter WIDTH = 8,
            parameter DEPTH = 256,
            parameter MODE = "NO_CHANGE" // "READ_FIRST" or "WRITE_FIRST"
