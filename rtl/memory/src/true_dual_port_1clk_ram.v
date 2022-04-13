@@ -30,20 +30,24 @@ generate
         // port A
         always @ (posedge clk) begin
             if (ena) begin
-                if (wea)
+                if (wea) begin
                     mem[addra] <= dina;
-                else
+                end
+                else begin
                     douta_temp <= mem[addra];
+                end
             end
         end
 
         // port B
         always @ (posedge clk) begin
             if (enb) begin
-                if (web)
+                if (web) begin
                     mem[addrb] <= dinb;
-                else
+                end
+                else begin
                     doutb_temp <= mem[addrb];
+                end
             end
         end
     end
@@ -51,9 +55,9 @@ generate
         // port A
         always @ (posedge clk) begin
             if (ena) begin
-                if (wea)
+                if (wea) begin
                     mem[addra] <= dina;
-
+                end
                 douta_temp <= mem[addra];
             end
         end
@@ -61,8 +65,9 @@ generate
         // port B
         always @ (posedge clk) begin
             if (enb) begin
-                if (web)
+                if (web) begin
                     mem[addrb] <= dinb;
+                end
                 doutb_temp <= mem[addrb];
             end
         end
