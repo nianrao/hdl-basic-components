@@ -54,14 +54,6 @@ module fifo_2clk #(
     end
   end
 
-  // convert wr_ptr to gray code
-  binary_to_gray #(
-      .WIDTH(ADDR_WIDTH)
-  ) wr_ptr_binary_to_gray_inst (
-      .binary(wr_ptr),
-      .gray  (wr_ptr_gray)
-  );
-
   //////////////////////////////////////////////////////////////////////////////
   // read port
   //////////////////////////////////////////////////////////////////////////////
@@ -79,6 +71,9 @@ module fifo_2clk #(
 
   assign dout = dout_temp;
 
+  //////////////////////////////////////////////////////////////////////////////
+  // fifo full status
+  //////////////////////////////////////////////////////////////////////////////
   // convert rd_ptr to gray code
   binary_to_gray #(
       .WIDTH(ADDR_WIDTH)
@@ -87,9 +82,7 @@ module fifo_2clk #(
       .gray  (rd_ptr_gray)
   );
 
-  //////////////////////////////////////////////////////////////////////////////
-  // fifo status
-  //////////////////////////////////////////////////////////////////////////////
+  // synchronize rd_ptr_gray to wr_clk domain
   always_ff @(posedge wr_clk or posedge rst_async) begin : rd_ptr_sync
     if (rst_async) begin
       rd_ptr_gray_sync_wr_clk <= '{default: '0};
@@ -100,6 +93,7 @@ module fifo_2clk #(
     end
   end
 
+  // convert rd_ptr_gray_sync_wr_clk to binary
   gray_to_binary #(
       .WIDTH(ADDR_WIDTH)
   ) rd_ptr_gray_to_binary_inst (
@@ -110,6 +104,18 @@ module fifo_2clk #(
   assign full = (wr_ptr[0 +: ADDR_WIDTH] == rd_ptr_binary_sync_wr_clk[0 +: ADDR_WIDTH]) &&
                 (wr_ptr[ADDR_WIDTH] != rd_ptr_binary_sync_wr_clk[ADDR_WIDTH]);
 
+  //////////////////////////////////////////////////////////////////////////////
+  // fifo empty status
+  //////////////////////////////////////////////////////////////////////////////
+  // convert wr_ptr to gray code
+  binary_to_gray #(
+      .WIDTH(ADDR_WIDTH)
+  ) wr_ptr_binary_to_gray_inst (
+      .binary(wr_ptr),
+      .gray  (wr_ptr_gray)
+  );
+
+  // synchronize wr_ptr_gray to rd_clk domain
   always_ff @(posedge rd_clk or posedge rst_async) begin : wr_ptr_sync
     if (rst_async) begin
       wr_ptr_gray_sync_rd_clk <= '{default: '0};
@@ -120,6 +126,7 @@ module fifo_2clk #(
     end
   end
 
+  // convert wr_ptr_gray_sync_rd_clk to binary
   gray_to_binary #(
       .WIDTH(ADDR_WIDTH)
   ) wr_ptr_gray_to_binary_inst (
