@@ -5,29 +5,31 @@
 
 module fifo_1clk #(
     parameter WIDTH = 8,
-    parameter DEPTH = 256
+    parameter DEPTH = 256,
+    parameter MIN_WIDTH = WIDTH == 0 ? 1 : WIDTH, // width of the data
+    parameter MIN_DEPTH = 2**$clog2(DEPTH) // always round up to the power of 2
 ) (
     // common interface
     input wire clk,
     input wire rst,
 
     // write interface
-    input wire [WIDTH-1:0] din,
+    input wire [MIN_WIDTH-1:0] din,
     input wire wr_en,
     output wire full,
 
     // read interface
     input wire rd_en,
-    output wire [WIDTH-1:0] dout,
+    output wire [MIN_WIDTH-1:0] dout,
     output wire empty
 );
 
-  localparam ADDR_WIDTH = $clog2(DEPTH);
+  localparam ADDR_WIDTH = $clog2(MIN_DEPTH);
 
   logic [ADDR_WIDTH:0] wr_ptr, rd_ptr;
-  logic [WIDTH-1:0] buffer[DEPTH-1:0];
+  logic [MIN_WIDTH-1:0] buffer[MIN_DEPTH-1:0];
 
-  logic [WIDTH-1:0] dout_temp;
+  logic [MIN_WIDTH-1:0] dout_temp;
 
   // fifo read and write
   always_ff @(posedge clk) begin

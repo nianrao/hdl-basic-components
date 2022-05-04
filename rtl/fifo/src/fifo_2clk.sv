@@ -5,28 +5,30 @@
 
 module fifo_2clk #(
     parameter WIDTH = 8,
-    parameter DEPTH = 256
+    parameter DEPTH = 256,
+    parameter MIN_WIDTH = WIDTH == 0 ? 1 : WIDTH, // width of the data
+    parameter MIN_DEPTH = 2**$clog2(DEPTH) // always round up to the power of 2
 ) (
     // common
     input wire rst_async,
 
     // write port
     input wire wr_clk,
-    input wire [WIDTH-1:0] din,
+    input wire [MIN_WIDTH-1:0] din,
     input wire wr_en,
     output wire full,
 
     // read port
     input wire rd_clk,
     input wire rd_en,
-    output wire [WIDTH-1:0] dout,
+    output wire [MIN_WIDTH-1:0] dout,
     output wire empty
 );
 
-  localparam ADDR_WIDTH = $clog2(DEPTH);
+  localparam ADDR_WIDTH = $clog2(MIN_DEPTH);
   localparam SYNC_STAGE = 2;  // number of stages to sync the wr/rd pointer
 
-  logic [WIDTH-1:0] buffer[DEPTH-1:0];
+  logic [MIN_WIDTH-1:0] buffer[MIN_DEPTH-1:0];
 
   // write interface
   logic [ADDR_WIDTH:0] wr_ptr, wr_ptr_gray;
@@ -37,7 +39,7 @@ module fifo_2clk #(
   logic [ADDR_WIDTH:0] rd_ptr, rd_ptr_gray;
   logic [ADDR_WIDTH:0] wr_ptr_gray_sync_rd_clk[SYNC_STAGE-1:0];
   logic [ADDR_WIDTH:0] wr_ptr_binary_sync_rd_clk;
-  logic [WIDTH-1:0] dout_temp;
+  logic [MIN_WIDTH-1:0] dout_temp;
 
   //////////////////////////////////////////////////////////////////////////////
   // write port
@@ -97,7 +99,7 @@ module fifo_2clk #(
   gray_to_binary #(
       .WIDTH(ADDR_WIDTH)
   ) rd_ptr_gray_to_binary_inst (
-      .gray  (rd_ptr_gray_sync_wr_clk[SYNC_STAGE-1]),
+      .gray  (rd_ptr_gray_sync_wr_clk[$high(rd_ptr_gray_sync_wr_clk)]),
       .binary(rd_ptr_binary_sync_wr_clk)
   );
 
@@ -130,7 +132,7 @@ module fifo_2clk #(
   gray_to_binary #(
       .WIDTH(ADDR_WIDTH)
   ) wr_ptr_gray_to_binary_inst (
-      .gray  (wr_ptr_gray_sync_rd_clk[SYNC_STAGE-1]),
+      .gray  (wr_ptr_gray_sync_rd_clk[$high(wr_ptr_gray_sync_rd_clk)]),
       .binary(wr_ptr_binary_sync_rd_clk)
   );
 
