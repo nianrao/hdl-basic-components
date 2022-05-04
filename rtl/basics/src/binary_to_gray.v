@@ -5,14 +5,6 @@ module binary_to_gray #(
            output [WIDTH - 1: 0] gray
        );
 
-assign gray[0] = binary[0];
-
-genvar i;
-generate
-    for (i = 1; i < WIDTH; i = i + 1) begin: gray_gen
-        assign gray[i] = binary[i] ^ binary[i - 1];
-    end
-endgenerate
-
+assign gray = (binary >> 1) ^ binary;
 
 endmodule
